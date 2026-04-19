@@ -95,8 +95,7 @@ func main() {
 		case "State":
 			data.State = stateExtraction(value)
 		case "Threads":
-			valueInt, _ := strconv.Atoi(value)
-			data.Threads = valueInt
+			data.Threads = extractNumber(value)
 		case "VmSize":
 			data.VmSize = extractNumber(value)
 		case "VmRSS":
