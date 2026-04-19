@@ -5,6 +5,7 @@ import (
     "os"
     "strings"
 	"strconv"
+	"path/filepath"
 )
 
 // YOU define what fields this needs
@@ -21,6 +22,14 @@ type Process struct {
 	Command string
 }
 
+func stateExtraction(str string) string{
+	word := strings.Fields(str)
+	if len(word) > 0{
+		return word[0]
+	}
+	return ""
+}
+
 func extractNumber(value string) int{
 	valueField := strings.Fields(value) 
 	if len(valueField) > 0 {
@@ -30,17 +39,22 @@ func extractNumber(value string) int{
 	return 0
 }
 
-func uidValue(value string) string{
+func uidValue(value string) int{
 	result := strings.Fields(value)
 	if len(result) > 0 {
-		val := result[0]
+		val, err := strconv.Atoi(result[0])
+		if err != nil{
+			fmt.Println("Error parsing Uid value with strconvAtoi", err)
+			return 0
+		}
 		return val
 	}
-	return ""
+	return 0
 }
 
 func commandLine(pid int)string{
-	file, err := os.ReadFile("/proc/" + strconv.Itoa(pid) + "/cmdline" )
+	path := filepath.Join("/proc/", strconv.Itoa(pid), "/cmdline")
+	file, err := os.ReadFile(path)
 	if err != nil{
 		fmt.Println("Error reading file:", err)
 		return ""
@@ -59,9 +73,10 @@ func main() {
 	content := string(file)
 	// fmt.Println(content)
     
-    // Parse it
+    // Separate the content by newline
 	splitLine := strings.Split(content, "\n")
 	var data Process
+	// Loop through each string in splitLine
 	for _, line := range splitLine{
 		pairs := strings.SplitN(line, ":", 2)
 		if len(pairs) != 2 {
@@ -69,19 +84,16 @@ func main() {
 		}
 		key := pairs[0]
 		value := strings.TrimSpace(pairs[1])
-		
+		// Populate the struct
 		switch key {
 		case "Name":
 			data.Name = value	
 		case "Pid":
-			valueInt, _ := strconv.Atoi(value)
-			data.PID = valueInt
-
+			data.PID = extractNumber(value)
 		case "PPid":
-			valueInt, _ := strconv.Atoi(value)
-			data.PPID = valueInt
+			data.PPID = extractNumber(value)
 		case "State":
-			data.State = value
+			data.State = stateExtraction(value)
 		case "Threads":
 			valueInt, _ := strconv.Atoi(value)
 			data.Threads = valueInt
@@ -90,19 +102,14 @@ func main() {
 		case "VmRSS":
 			data.VmRSS = extractNumber(value)
 		case "Uid":
-			Uid, _ := strconv.Atoi(uidValue(value))
-			data.UID = Uid
+			data.UID = uidValue(value)
 		}
 	}
+	// Add the command part of the struct
 	command := strings.ReplaceAll(commandLine(data.PID), "\x00", " ")
 	data.Command = strings.TrimSpace(command)
 	fmt.Println(command)
 	fmt.Printf("%+v\n", data)
-    // Hint: each line is "Key:   Value"
-    // Hint: strings.Split() splits a string
-    // Hint: strings.TrimSpace() removes whitespace
-
-    // Print the result
 
 	
 }
