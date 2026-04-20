@@ -1,11 +1,10 @@
 package main
 
 import (
-    "fmt"
-    "os"
-    "strings"
+	"fmt"
+	"os"
 	"strconv"
-	"path/filepath"
+	"strings"
 )
 
 // YOU define what fields this needs
@@ -52,63 +51,45 @@ func uidValue(value string) int{
 	return 0
 }
 
-func commandLine(pid int)string{
-	path := filepath.Join("/proc/", strconv.Itoa(pid), "/cmdline")
-	file, err := os.ReadFile(path)
-	if err != nil{
-		fmt.Println("Error reading file:", err)
-		return ""
-	}
-	command := string(file) 
-	return command
-	}
+func PrintProcess(p *Process){
+	// Handle empty command (e.g., kernel threads)
+    command := p.Command
+    if command == "" {
+        command = "[kernel]"
+    }
+
+    fmt.Printf("Name:		%s\n", p.Name)
+	fmt.Printf("PID:		%d\n", p.PID)
+	fmt.Printf("PPID:		%d\n", p.PPID)
+	fmt.Printf("State:		%s\n", p.State)
+	fmt.Printf("Threads:	%d\n", p.Threads)
+	fmt.Printf("VmSize:		%d\n", p.VmSize)
+	fmt.Printf("VmRSS:		%d\n", p.VmRSS)
+	fmt.Printf("UID:		%d\n", p.UID)
+	fmt.Printf("Command:	%s\n", command)
+}
 
 func main() {
-    // Read /proc/self/status
-	file, err := os.ReadFile("/proc/self/status")
-	if err != nil {
-		fmt.Println("Error reading file:", err)
-		return
-	}
-	content := string(file)
-	// fmt.Println(content)
-    
-    // Separate the content by newline
-	splitLine := strings.Split(content, "\n")
-	var data Process
-	// Loop through each string in splitLine
-	for _, line := range splitLine{
-		pairs := strings.SplitN(line, ":", 2)
-		if len(pairs) != 2 {
-    		continue
+	args := os.Args
+	if len(args) == 2{
+		pidNum, err := strconv.Atoi(os.Args[1])
+		if err != nil{
+			fmt.Println("Invalid PID: abc — please provide a number", err)
+			return
 		}
-		key := pairs[0]
-		value := strings.TrimSpace(pairs[1])
-		// Populate the struct
-		switch key {
-		case "Name":
-			data.Name = value	
-		case "Pid":
-			data.PID = extractNumber(value)
-		case "PPid":
-			data.PPID = extractNumber(value)
-		case "State":
-			data.State = stateExtraction(value)
-		case "Threads":
-			data.Threads = extractNumber(value)
-		case "VmSize":
-			data.VmSize = extractNumber(value)
-		case "VmRSS":
-			data.VmRSS = extractNumber(value)
-		case "Uid":
-			data.UID = uidValue(value)
-		}
-	}
-	// Add the command part of the struct
-	command := strings.ReplaceAll(commandLine(data.PID), "\x00", " ")
-	data.Command = strings.TrimSpace(command)
-	fmt.Println(command)
-	fmt.Printf("%+v\n", data)
 
-	
+		process, err := ReadProcess(pidNum)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		PrintProcess(process)
+	} else {
+		process, err := ReadProcess(os.Getpid())
+		if err != nil {
+    		fmt.Println("Error:", err)
+    		return
+		}
+		PrintProcess(process)
+	}
 }
