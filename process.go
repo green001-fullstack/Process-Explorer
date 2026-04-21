@@ -58,15 +58,15 @@ func PrintProcess(p *Process){
         command = "[kernel]"
     }
 
-    fmt.Printf("Name:		%s\n", p.Name)
-	fmt.Printf("PID:		%d\n", p.PID)
-	fmt.Printf("PPID:		%d\n", p.PPID)
-	fmt.Printf("State:		%s\n", p.State)
-	fmt.Printf("Threads:	%d\n", p.Threads)
-	fmt.Printf("VmSize:		%d\n", p.VmSize)
-	fmt.Printf("VmRSS:		%d\n", p.VmRSS)
-	fmt.Printf("UID:		%d\n", p.UID)
-	fmt.Printf("Command:	%s\n", command)
+    fmt.Printf("%-10s %s\n", "Name:", p.Name)
+	fmt.Printf("%-10s %d\n", "PID:",  p.PID)
+	fmt.Printf("%-10s %d\n", "PPID", p.PPID)
+	fmt.Printf("%-10s %s\n", "State", p.State)
+	fmt.Printf("%-10s %d\n", "Threads", p.Threads)
+	fmt.Printf("%-10s %d KB\n", "VmSize", p.VmSize)
+	fmt.Printf("%-10s %d KB\n", "VmRSS", p.VmRSS)
+	fmt.Printf("%-10s %d\n", "UID", p.UID)
+	fmt.Printf("%-10s %s\n", "Command", command)
 }
 
 func main() {
@@ -74,7 +74,11 @@ func main() {
 	if len(args) == 2{
 		pidNum, err := strconv.Atoi(os.Args[1])
 		if err != nil{
-			fmt.Println("Invalid PID: abc — please provide a number", err)
+			fmt.Println("Invalid PID:" + args[1] + "— please provide a number")
+			return
+		}
+		if args[1] == "0"{
+			fmt.Println("Invalid number, input values above 0")
 			return
 		}
 
