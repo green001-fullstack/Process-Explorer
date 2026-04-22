@@ -7,8 +7,6 @@ import (
 	"strings"
 )
 
-// YOU define what fields this needs
-// based on what you saw in /proc/PID/status
 type Process struct {
 	Name string
 	PID int
@@ -19,6 +17,49 @@ type Process struct {
 	VmRSS int
 	UID int
 	Command string
+}
+
+func GetAllPIDs() ([]int, error) {
+	entries, err := os.ReadDir("/proc")
+	if err != nil {
+		return nil, err
+	}
+
+	var pids []int
+	for _, entry := range entries{
+		if !entry.IsDir(){
+			continue
+		}
+		entryName, err := strconv.Atoi(entry.Name())
+		if err != nil{
+			continue
+		}
+
+		pids = append(pids, entryName)
+	}
+	
+	return pids, nil
+}
+
+func GetAllProcesses() ([]*Process, error) {
+    // 1. Call GetAllPIDs()
+	pids, err := GetAllPIDs()
+	if err != nil {
+		return nil, err
+	}
+
+	var allProcessStruct []*Process
+    // 2. Loop through each PID
+	for _, process := range pids{
+		// 3. Call ReadProcess() for each PID
+		eachProcessStruct, err := ReadProcess(process)
+		if err != nil{
+			continue
+		}
+		allProcessStruct = append(allProcessStruct, eachProcessStruct)
+	}
+
+	return allProcessStruct, nil
 }
 
 func stateExtraction(str string) string{
@@ -89,11 +130,22 @@ func main() {
 		}
 		PrintProcess(process)
 	} else {
-		process, err := ReadProcess(os.Getpid())
-		if err != nil {
-    		fmt.Println("Error:", err)
-    		return
-		}
-		PrintProcess(process)
+		// process, err := ReadProcess(os.Getpid())
+		// if err != nil {
+    	// 	fmt.Println("Error:", err)
+    	// 	return
+		// }
+		// PrintProcess(process)
+		processes, err := GetAllProcesses()
+	if err != nil{
+		fmt.Println("Error collecting processes", err)
+		return 
 	}
+	fmt.Printf("Found %d processes\n", len(processes))
+	for _, p := range processes{
+		PrintProcess(p)
+		fmt.Println("---")
+	}
+	}
+	
 }
