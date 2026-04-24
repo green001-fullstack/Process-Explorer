@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
+	// "strings"
 	"process-explorer/functions"
 	"flag"
 )
@@ -23,14 +23,15 @@ func main() {
 				fmt.Println("Error:", err)
 				return
 			}
-			fmt.Printf("%-7s %-7s %-7s %-9s %s\n",
-			"PID", "PPID", "STATE", "MEM(KB)", "COMMAND")
-			fmt.Println(strings.Repeat("-", 70))
+			// fmt.Printf("%-7s %-7s %-7s %-9s %s\n",
+			// "PID", "PPID", "STATE", "MEM(KB)", "COMMAND")
+			// fmt.Println(strings.Repeat("-", 70))
+			functions.PrintHeader()
 			functions.PrintProcessLine(process)
 		} else{
 			pidNum, err := strconv.Atoi(args[0])
 		if err != nil {
-			fmt.Println("Invalid PID:" + args[1] + "— please provide a number")
+			fmt.Println("Invalid PID:" + args[0] + "— please provide a number")
 			return
 		}
 		if args[0] == "0" {
@@ -43,9 +44,10 @@ func main() {
 			fmt.Println("Error:", err)
 			return
 		}
-		fmt.Printf("%-7s %-7s %-7s %-9s %s\n",
-			"PID", "PPID", "STATE", "MEM(KB)", "COMMAND")
-		fmt.Println(strings.Repeat("-", 70))
+		// fmt.Printf("%-7s %-7s %-7s %-9s %s\n",
+		// 	"PID", "PPID", "STATE", "MEM(KB)", "COMMAND")
+		// fmt.Println(strings.Repeat("-", 70))
+		functions.PrintHeader()
 		functions.PrintProcessLine(process)
 		}
 	} else {
@@ -57,9 +59,10 @@ func main() {
 		}
 		fmt.Printf("Found %d processes\n", len(processes))
 
-		fmt.Printf("%-7s %-7s %-7s %-9s %s\n",
-			"PID", "PPID", "STATE", "MEM(KB)", "COMMAND")
-		fmt.Println(strings.Repeat("-", 70))
+		// fmt.Printf("%-7s %-7s %-7s %-9s %s\n",
+		// 	"PID", "PPID", "STATE", "MEM(KB)", "COMMAND")
+		// fmt.Println(strings.Repeat("-", 70))
+		functions.PrintHeader()
 
 
 		functions.SortProcesses(processes, *sortBy)

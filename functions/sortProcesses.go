@@ -12,7 +12,7 @@ func SortProcesses(processes []*Process, by string) {
     case "name":
         // sort by Name, alphabetically
 		sort.Slice(processes, func(i, j int)bool{
-			return processes[i].Name > processes[j].Name
+			return processes[i].Name < processes[j].Name
 		})
     default:
         // sort by PID, lowest first
