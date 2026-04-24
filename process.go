@@ -10,10 +10,14 @@ import (
 )
 
 func main() {
-	args := os.Args
-	if len(args) == 2 {
+	sortBy := flag.String("sort", "pid", "sort by: pid mem")
+	flag.Parse()
+
+	args := flag.Args()
+
+	if len(args) == 1 {
 		// if you want to check only self or specific number
-		if args[1] == "self" {
+		if args[0] == "self" {
 			process, err := functions.ReadProcess(os.Getpid())
 			if err != nil {
 				fmt.Println("Error:", err)
@@ -24,12 +28,12 @@ func main() {
 			fmt.Println(strings.Repeat("-", 70))
 			functions.PrintProcessLine(process)
 		} else{
-			pidNum, err := strconv.Atoi(os.Args[1])
+			pidNum, err := strconv.Atoi(args[0])
 		if err != nil {
 			fmt.Println("Invalid PID:" + args[1] + "— please provide a number")
 			return
 		}
-		if args[1] == "0" {
+		if args[0] == "0" {
 			fmt.Println("Invalid number, input values above 0")
 			return
 		}
@@ -58,7 +62,7 @@ func main() {
 		fmt.Println(strings.Repeat("-", 70))
 
 
-		functions.SortProcesses(processes, "mem")
+		functions.SortProcesses(processes, *sortBy)
 		for _, p := range processes {
 			functions.PrintProcessLine(p)
 		}
