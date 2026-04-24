@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"process-explorer/functions"
+	"flag"
 )
 
 func main() {
@@ -44,6 +45,7 @@ func main() {
 		functions.PrintProcessLine(process)
 		}
 	} else {
+		
 		processes, err := functions.GetAllProcesses()
 		if err != nil {
 			fmt.Println("Error collecting processes", err)
@@ -55,6 +57,8 @@ func main() {
 			"PID", "PPID", "STATE", "MEM(KB)", "COMMAND")
 		fmt.Println(strings.Repeat("-", 70))
 
+
+		functions.SortProcesses(processes, "mem")
 		for _, p := range processes {
 			functions.PrintProcessLine(p)
 		}
